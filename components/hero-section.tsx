@@ -128,10 +128,10 @@ export function HeroSection() {
     }
   }, [banners.length])
 
-  // Function to split services into pairs for window layout
+  // Function to split services into rows of 3 for grid
   const getServiceRows = () => {
     const rows = []
-    const perRow = 2
+    const perRow = 3
     for (let i = 0; i < SERVICES.length; i += perRow) {
       rows.push(SERVICES.slice(i, i + perRow))
     }
@@ -142,15 +142,16 @@ export function HeroSection() {
     <>
       {/* Desktop Hero Section */}
       <section className="hidden md:block relative bg-white overflow-hidden w-full">
-        {/* Banner Carousel: FULL WIDTH, BELOW HEADER */}
-        <div className="w-full">
-          <div className="relative w-full h-[370px] md:h-[450px] lg:h-[525px] overflow-hidden">
+        {/* Banner Carousel: full width, fit like 16:9 */}
+        <div className="w-full bg-white">
+          <div className="relative w-full" style={{ aspectRatio: "16/9", minHeight: 300, maxHeight: 480, overflow: 'hidden' }}>
             {banners.length > 0 && (
               <>
                 <img
                   src={banners[currentBannerIndex]?.imageUrl || "/placeholder.svg"}
                   alt={banners[currentBannerIndex]?.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain object-top transition-all duration-500"
+                  style={{ maxHeight: 480, width: '100%', height: '100%' }}
                 />
                 {banners.length > 1 && (
                   <>
@@ -166,12 +167,13 @@ export function HeroSection() {
                     >
                       <ChevronRight className="w-4 h-4 text-black" />
                     </button>
-                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                    {/* 80% reduced dot size */}
+                    <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-1 z-10">
                       {banners.map((_, index) => (
                         <button
                           key={index}
                           onClick={() => setCurrentBannerIndex(index)}
-                          className={`w-2.5 h-2.5 rounded-full transition-all border ${index === currentBannerIndex ? "bg-black border-black" : "bg-gray-200 border-gray-300"}`}
+                          className={`w-1 h-1 rounded-full transition-all border ${index === currentBannerIndex ? "bg-black border-black" : "bg-gray-200 border-gray-300"}`}
                         />
                       ))}
                     </div>
@@ -181,20 +183,20 @@ export function HeroSection() {
             )}
           </div>
         </div>
-        {/* Section BELOW the banner, with 2 columns: Left (buttons), Right (service window) */}
+        {/* Section below banner */}
         <div className="container mx-auto px-8 flex mt-6 items-start">
-          {/* LEFT: Actions (stacked vertically, detect location first) */}
+          {/* LEFT: Actions (vertical stack, smaller buttons, orange/white variant) */}
           <div className="flex flex-col justify-start items-start w-1/2 pt-2" style={{ minHeight: "340px" }}>
             <Button
               onClick={detectLocation}
               disabled={detectingLocation}
-              className="mb-6 py-4 px-8 rounded-2xl font-semibold text-lg bg-white border border-gray-200 text-black hover:bg-gray-100 shadow-md transition focus:outline-none flex items-center gap-2"
+              className="mb-5 py-3 px-7 rounded-xl font-semibold text-base bg-white border border-gray-200 text-black hover:bg-gray-100 shadow-md transition focus:outline-none flex items-center gap-2"
             >
-              <MapPin className={`w-6 h-6 text-black ${detectingLocation ? "animate-pulse" : ""}`} />
+              <MapPin className={`w-5 h-5 text-black ${detectingLocation ? "animate-pulse" : ""}`} />
               {detectingLocation ? "Detecting..." : "Detect Location"}
             </Button>
             {currentLocation && (
-              <div className="mb-6 p-4 bg-white rounded-xl border border-gray-200 shadow-sm flex items-center gap-3 max-w-md">
+              <div className="mb-4 p-3 bg-white rounded-xl border border-gray-200 shadow-sm flex items-center gap-3 max-w-md">
                 <MapPin className="w-5 h-5 text-black" />
                 <div>
                   <p className="text-sm text-gray-600">Deliver to</p>
@@ -204,46 +206,33 @@ export function HeroSection() {
             )}
             <Button
               onClick={() => router.push("/services")}
-              className="mb-4 py-4 px-8 rounded-2xl font-semibold text-lg bg-blue-600 hover:bg-blue-700 text-white shadow-md transition focus:outline-none w-full"
+              className="mb-3 w-full py-3 px-7 rounded-xl font-semibold text-base bg-white border border-gray-200 hover:bg-gray-50 text-black shadow transition focus:outline-none flex items-center justify-center"
             >
-              <div className="flex items-center gap-2 justify-center w-full">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" />
-                </svg>
-                Explore Services
-              </div>
+              <svg className="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z"/></svg>
+              Explore Services
             </Button>
             <Button
               onClick={() => router.push("/products")}
-              className="py-4 px-8 rounded-2xl font-semibold text-lg bg-cyan-600 hover:bg-cyan-700 text-white shadow-md transition focus:outline-none w-full"
+              className="w-full py-3 px-7 rounded-xl font-semibold text-base bg-orange-500 hover:bg-orange-600 text-white shadow transition focus:outline-none flex items-center justify-center"
             >
-              <div className="flex items-center gap-2 justify-center w-full">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path d="M19 7h-3V6a4 4 0 0 0-8 0v1H5a1 1 0 0 0-1 1v11a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V8a1 1 0 0 0-1-1z" />
-                </svg>
-                Explore Products
-              </div>
+              <svg className="w-5 h-5 text-white mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 7h-3V6a4 4 0 0 0-8 0v1H5a1 1 0 0 0-1 1v11a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V8a1 1 0 0 0-1-1z" /></svg>
+              Explore Products
             </Button>
           </div>
-          {/* RIGHT: Service Selector Window: 2-PADDED services per row */}
+          {/* RIGHT: Service Selector Window: 3 grid */}
           <div className="w-1/2 flex flex-col items-center justify-start">
             <div className="bg-white rounded-xl border border-gray-200 shadow-lg p-6 mb-4 max-w-sm w-full">
-              <h3 className="font-semibold text-lg mb-5 text-center">Select Service Type</h3>
-              <div className="flex flex-col gap-3">
-                {getServiceRows().map((pair, rowIdx) => (
-                  <div key={rowIdx} className="flex gap-3">
-                    {pair.map((service) => (
-                      <button
-                        key={service.name}
-                        onClick={() => router.push(service.path)}
-                        className="flex-1 flex items-center gap-3 px-3 py-3 rounded-lg border border-gray-100 bg-gray-50 hover:bg-blue-50 transition cursor-pointer shadow-sm"
-                      >
-                        <img src={service.icon} alt={service.name} width={40} height={40} className="rounded-xl border" />
-                        <span className="font-medium text-gray-900 text-base">{service.name}</span>
-                      </button>
-                    ))}
-                    {pair.length < 2 && <div className="flex-1"></div>}
-                  </div>
+              <h3 className="font-semibold text-lg mb-4 text-center">Select Service Type</h3>
+              <div className="grid grid-cols-3 gap-3">
+                {SERVICES.map((service) => (
+                  <button
+                    key={service.name}
+                    onClick={() => router.push(service.path)}
+                    className="flex flex-col items-center gap-2 px-2 py-3 rounded-lg border border-gray-100 bg-gray-50 hover:bg-blue-50 transition cursor-pointer shadow-sm"
+                  >
+                    <img src={service.icon} alt={service.name} width={36} height={36} className="rounded-xl border" />
+                    <span className="font-medium text-gray-900 text-xs text-center">{service.name}</span>
+                  </button>
                 ))}
               </div>
             </div>
@@ -262,19 +251,20 @@ export function HeroSection() {
             </div>
           </div>
           {banners.length > 0 && (
-            <div className="relative h-48 w-full rounded-2xl overflow-hidden shadow-md mb-8">
+            <div className="relative w-full" style={{ aspectRatio: "16/9", minHeight: 160, maxHeight: 240, overflow: 'hidden' }}>
               <img
                 src={banners[currentBannerIndex]?.imageUrl || "/placeholder.svg"}
                 alt={banners[currentBannerIndex]?.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain object-top"
+                style={{ maxHeight: 240, width: "100%", height: "100%" }}
               />
               {banners.length > 1 && (
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1">
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1 z-10">
                   {banners.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => setCurrentBannerIndex(index)}
-                      className={`w-[0.4rem] h-[0.4rem] rounded-full transition-all border ${
+                      className={`w-1 h-1 rounded-full transition-all border ${
                         index === currentBannerIndex ? "bg-black border-black" : "bg-gray-200 border-gray-300"
                       }`}
                     />
@@ -283,17 +273,17 @@ export function HeroSection() {
               )}
             </div>
           )}
-          <div className="flex-1 flex flex-col justify-center space-y-6">
+          <div className="flex-1 flex flex-col justify-center space-y-4">
             <Button
               onClick={detectLocation}
               disabled={detectingLocation}
-              className="mb-4 w-full bg-white text-black hover:bg-gray-100 rounded-2xl py-4 px-6 flex items-center justify-center text-lg font-semibold shadow-sm border border-gray-200 hover:border-black transition"
+              className="mb-3 w-full bg-white text-black hover:bg-gray-100 rounded-xl py-3 px-6 flex items-center justify-center text-base font-semibold shadow-sm border border-gray-200 hover:border-black transition"
             >
-              <MapPin className={`w-6 h-6 text-black mr-2 ${detectingLocation ? "animate-pulse" : ""}`} />
+              <MapPin className={`w-5 h-5 text-black mr-2 ${detectingLocation ? "animate-pulse" : ""}`} />
               {detectingLocation ? "Detecting Location..." : "Detect Location"}
             </Button>
             {currentLocation && (
-              <div className="p-4 bg-white rounded-2xl border border-gray-200 mb-4">
+              <div className="p-3 bg-white rounded-xl border border-gray-200 mb-3">
                 <div className="flex items-center gap-3">
                   <MapPin className="w-5 h-5 text-black" />
                   <div>
@@ -305,44 +295,34 @@ export function HeroSection() {
             )}
             <Button
               onClick={() => router.push("/services")}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-2xl py-4 px-6 flex items-center justify-center text-lg font-semibold shadow-sm border border-blue-700 transition"
+              className="mb-3 w-full bg-white border border-gray-200 hover:bg-gray-50 text-black rounded-xl py-3 px-6 flex items-center justify-center text-base font-semibold shadow transition"
             >
-              <div className="flex items-center gap-2">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" />
-                </svg>
-                Home Services
-              </div>
+              <svg className="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z"/>
+              </svg>
+              Explore Services
             </Button>
             <Button
               onClick={() => router.push("/products")}
-              className="w-full bg-cyan-600 hover:bg-cyan-700 text-white rounded-2xl py-4 px-6 flex items-center justify-center text-lg font-semibold shadow-sm border border-cyan-700 transition"
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white rounded-xl py-3 px-6 flex items-center justify-center text-base font-semibold shadow transition"
             >
-              <div className="flex items-center gap-2">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path d="M19 7h-3V6a4 4 0 0 0-8 0v1H5a1 1 0 0 0-1 1v11a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V8a1 1 0 0 0-1-1z" />
-                </svg>
-                Premium Products
-              </div>
+              <svg className="w-5 h-5 text-white mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M19 7h-3V6a4 4 0 0 0-8 0v1H5a1 1 0 0 0-1 1v11a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V8a1 1 0 0 0-1-1z"/>
+              </svg>
+              Explore Products
             </Button>
-            {/* SERVICE SELECTOR - two-per-row for mobile */}
-            <div className="w-full mt-4">
-              <div className="bg-white rounded-xl border border-gray-200 shadow-lg p-4 flex flex-col gap-3">
-                <div className="text-center font-semibold text-base mb-1">Choose a Service</div>
-                {getServiceRows().map((pair, rowIdx) => (
-                  <div key={rowIdx} className="flex gap-2">
-                    {pair.map((service) => (
-                      <button
-                        key={service.name}
-                        onClick={() => router.push(service.path)}
-                        className="flex-1 flex items-center gap-2 px-3 py-3 rounded-lg border border-gray-100 bg-gray-50 hover:bg-blue-50 transition shadow"
-                      >
-                        <img src={service.icon} alt={service.name} width={32} height={32} className="rounded-xl border" />
-                        <span className="font-medium text-gray-900 text-sm">{service.name}</span>
-                      </button>
-                    ))}
-                    {pair.length < 2 && <div className="flex-1"></div>}
-                  </div>
+            {/* SERVICE SELECTOR - 3 grid per row for mobile */}
+            <div className="w-full mt-3">
+              <div className="bg-white rounded-xl border border-gray-200 shadow-lg p-4 grid grid-cols-3 gap-3">
+                {SERVICES.map((service) => (
+                  <button
+                    key={service.name}
+                    onClick={() => router.push(service.path)}
+                    className="flex flex-col items-center gap-1 px-2 py-3 rounded-lg border border-gray-100 bg-gray-50 hover:bg-blue-50 transition shadow"
+                  >
+                    <img src={service.icon} alt={service.name} width={28} height={28} className="rounded-xl border" />
+                    <span className="font-medium text-gray-900 text-xs text-center">{service.name}</span>
+                  </button>
                 ))}
               </div>
             </div>
