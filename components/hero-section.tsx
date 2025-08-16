@@ -59,7 +59,6 @@ export function HeroSection() {
     }
   }
 
-  // Browser geolocation detection and reverse geocoding
   const detectLocation = async () => {
     if (!("geolocation" in navigator)) {
       alert("Geolocation is not supported by your browser.")
@@ -70,7 +69,6 @@ export function HeroSection() {
       async (position) => {
         try {
           const { latitude, longitude } = position.coords
-          // Reverse geocode with Nominatim
           const response = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
           )
@@ -96,17 +94,10 @@ export function HeroSection() {
         console.error("Geolocation error:", error)
         let message = "Could not get your location. "
         switch (error.code) {
-          case 1:
-            message += "Permission denied."
-            break
-          case 2:
-            message += "Position unavailable."
-            break
-          case 3:
-            message += "Request timed out."
-            break
-          default:
-            message += "Unknown error."
+          case 1: message += "Permission denied."; break
+          case 2: message += "Position unavailable."; break
+          case 3: message += "Request timed out."; break
+          default: message += "Unknown error."
         }
         alert(message)
         setDetectingLocation(false)
@@ -139,11 +130,13 @@ export function HeroSection() {
             {/* Left column - Responsive Full Image */}
             <div className="relative h-[75vh] w-full flex items-center">
               {banners.length > 0 && (
-                <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl">
+                // ✅ ADDED: Added bg-gray-50 for a clean background when image is contained
+                <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl bg-gray-50">
                   <img
                     src={banners[currentBannerIndex]?.imageUrl || "/placeholder.svg"}
                     alt={banners[currentBannerIndex]?.title}
-                    className="w-full h-full object-cover object-center transition-all duration-500"
+                    // ✅ CHANGED: Replaced 'object-cover' with 'object-contain' to fit the whole image
+                    className="w-full h-full object-contain object-center transition-all duration-500"
                   />
 
                   {/* Carousel controls */}
@@ -151,24 +144,30 @@ export function HeroSection() {
                     <>
                       <button
                         onClick={prevBanner}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white hover:bg-gray-100 rounded-full flex items-center justify-center shadow-md transition-all z-10 border border-gray-200"
+                        // ✅ CHANGED: Reduced arrow button size from w-12 h-12 to w-10 h-10
+                        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white hover:bg-gray-100 rounded-full flex items-center justify-center shadow-md transition-all z-10 border border-gray-200"
                       >
-                        <ChevronLeft className="w-5 h-5 text-black" />
+                        {/* ✅ CHANGED: Reduced icon size from w-5 h-5 to w-4 h-4 */}
+                        <ChevronLeft className="w-4 h-4 text-black" />
                       </button>
                       <button
                         onClick={nextBanner}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white hover:bg-gray-100 rounded-full flex items-center justify-center shadow-md transition-all z-10 border border-gray-200"
+                        // ✅ CHANGED: Reduced arrow button size from w-12 h-12 to w-10 h-10
+                        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white hover:bg-gray-100 rounded-full flex items-center justify-center shadow-md transition-all z-10 border border-gray-200"
                       >
-                        <ChevronRight className="w-5 h-5 text-black" />
+                        {/* ✅ CHANGED: Reduced icon size from w-5 h-5 to w-4 h-4 */}
+                        <ChevronRight className="w-4 h-4 text-black" />
                       </button>
 
                       {/* Indicator Dots */}
-                      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                      {/* ✅ CHANGED: Reduced gap between dots */}
+                      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
                         {banners.map((_, index) => (
                           <button
                             key={index}
                             onClick={() => setCurrentBannerIndex(index)}
-                            className={`w-[0.4rem] h-[0.4rem] rounded-full transition-all border ${
+                            // ✅ CHANGED: Reduced dot size
+                            className={`w-1.5 h-1.5 rounded-full transition-all border ${
                               index === currentBannerIndex ? "bg-black border-black" : "bg-gray-200 border-gray-300"
                             }`}
                           />
@@ -245,7 +244,6 @@ export function HeroSection() {
       {/* Mobile Hero Section */}
       <section className="md:hidden min-h-screen bg-white relative overflow-hidden">
         <div className="relative z-10 px-6 py-12 min-h-screen flex flex-col">
-          {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm">
@@ -255,9 +253,7 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Carousel */}
           {banners.length > 0 && (
-            // ✅ CORRECTED: Changed w-1/2 to w-full for better image display on mobile
             <div className="relative h-48 w-full rounded-2xl overflow-hidden shadow-md mb-8">
               <img
                 src={banners[currentBannerIndex]?.imageUrl || "/placeholder.svg"}
@@ -280,7 +276,6 @@ export function HeroSection() {
             </div>
           )}
 
-          {/* Main content */}
           <div className="flex-1 flex flex-col justify-center space-y-8">
             <div>
               <h1 className="text-black font-bold text-4xl leading-tight mb-6">
@@ -292,7 +287,6 @@ export function HeroSection() {
               </h1>
             </div>
 
-            {/* Location display */}
             {currentLocation && (
               <div className="p-4 bg-white rounded-2xl border border-gray-200">
                 <div className="flex items-center gap-3">
@@ -305,7 +299,6 @@ export function HeroSection() {
               </div>
             )}
 
-            {/* Service buttons */}
             <div className="space-y-4">
               <Button
                 onClick={() => router.push("/services")}
