@@ -25,16 +25,14 @@ export default function ServicesPage() {
 
   const { addItem } = useCart()
 
-  // Subscribe to real-time updates
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [servicesData, categoriesData] = await Promise.all([
-          firebaseService.getServices(), // Direct collection fetch like admin
-          firebaseService.getCategories(), // Direct collection fetch like admin
+          firebaseService.getServices(),
+          firebaseService.getCategories(),
         ])
 
-        // Filter active services on client side
         const activeServices = servicesData.filter((s) => s.isActive !== false)
         setServices(activeServices)
         setFiltered(activeServices)
@@ -113,88 +111,78 @@ export default function ServicesPage() {
   const getCategoryName = (id: string) => categories.find((c) => c.id === id)?.name ?? id
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {" "}
-      {/* Applied off-white background */}
+    <div className="min-h-screen bg-[#FAFAFB]">
       <Header />
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2 text-slate-800 font-serif">
-            {" "}
-            {/* Applied graphite text */}
-            All Services
-          </h1>
-          <p className="text-slate-600">
-            {" "}
-            {/* Applied muted graphite */}
-            Browse our complete home service offerings
-          </p>
-          <div className="flex items-center mt-2 text-sm text-slate-600">
-            <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></div>{" "}
-            {/* Applied emerald accent */}
+      <main className="container mx-auto px-4 md:px-6 py-6 md:py-8 pb-24 md:pb-8">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold mb-2 text-[#1B1F22] font-serif">All Services</h1>
+          <p className="text-[#475569] text-sm md:text-base">Browse our complete home service offerings</p>
+          <div className="flex items-center mt-2 text-xs md:text-sm text-[#475569]">
+            <div className="w-2 h-2 bg-[#2DCE89] rounded-full mr-2 animate-pulse"></div>
             <span>Live data — updates automatically</span>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="flex flex-col gap-3 md:gap-4 mb-6 md:mb-8">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               placeholder="Search services..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 h-12 md:h-10 text-base md:text-sm border-gray-200 focus:border-[#2DCE89] bg-white"
             />
           </div>
 
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              {categories.map((c) => (
-                <SelectItem key={c.id} value={c.id}>
-                  {c.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="grid grid-cols-2 gap-3 md:flex md:gap-4">
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="h-12 md:h-10 md:w-48 border-gray-200 focus:border-[#2DCE89] bg-white">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="popular">Most Popular</SelectItem>
-              <SelectItem value="rating">Highest Rated</SelectItem>
-              <SelectItem value="price-low">Price: Low to High</SelectItem>
-              <SelectItem value="price-high">Price: High to Low</SelectItem>
-            </SelectContent>
-          </Select>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="h-12 md:h-10 md:w-48 border-gray-200 focus:border-[#2DCE89] bg-white">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="popular">Most Popular</SelectItem>
+                <SelectItem value="rating">Highest Rated</SelectItem>
+                <SelectItem value="price-low">Price: Low to High</SelectItem>
+                <SelectItem value="price-high">Price: High to Low</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {loading ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
-              <Card key={i} className="animate-pulse bg-white">
-                {" "}
-                {/* White card background */}
-                <div className="aspect-video bg-slate-200"></div>
-                <CardContent className="p-6 space-y-2">
-                  <div className="h-6 bg-slate-200 rounded"></div>
-                  <div className="h-4 bg-slate-200 rounded"></div>
-                  <div className="h-10 bg-slate-200 rounded"></div>
+              <Card key={i} className="animate-pulse bg-white border-0 shadow-sm">
+                <div className="aspect-video bg-gray-200"></div>
+                <CardContent className="p-4 md:p-6 space-y-2">
+                  <div className="h-6 bg-gray-200 rounded"></div>
+                  <div className="h-4 bg-gray-200 rounded"></div>
+                  <div className="h-10 bg-gray-200 rounded"></div>
                 </CardContent>
               </Card>
             ))}
           </div>
         ) : filtered.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          /* Improved mobile grid layout with better card spacing and touch targets */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {filtered.map((s) => (
               <Card
                 key={s.id}
-                className="group hover:shadow-xl transition duration-300 bg-white border-slate-200" // White cards with subtle borders
+                className="group hover:shadow-lg transition duration-300 bg-white border-0 shadow-sm rounded-xl md:rounded-lg overflow-hidden"
               >
                 <div className="aspect-video overflow-hidden">
                   <img
@@ -203,42 +191,27 @@ export default function ServicesPage() {
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                   />
                 </div>
-                <CardContent className="p-6">
-                  <div className="flex justify-between mb-2">
-                    <h3 className="font-semibold text-lg truncate text-slate-800">
-                      {" "}
-                      {/* Graphite text */}
-                      {s.name}
-                    </h3>
-                    <Badge variant="secondary" className="bg-emerald-100 text-emerald-800">
-                      {" "}
-                      {/* Emerald badge */}
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-semibold text-lg md:text-lg text-[#1B1F22] line-clamp-1">{s.name}</h3>
+                    <Badge variant="secondary" className="bg-[#F1FCF7] text-[#2DCE89] border-0 ml-2 shrink-0">
                       <Star className="h-3 w-3 fill-current mr-1" />
                       {s.rating ?? 0}
                     </Badge>
                   </div>
-                  <p className="text-sm text-slate-600 mb-2 truncate">
-                    {" "}
-                    {/* Muted graphite */}
-                    {s.shortDescription ?? s.description}
-                  </p>
-                  <Badge variant="outline" className="mb-3 text-xs border-emerald-200 text-emerald-700">
-                    {" "}
-                    {/* Emerald outline */}
+                  <p className="text-sm text-[#475569] mb-3 line-clamp-2">{s.shortDescription ?? s.description}</p>
+                  <Badge variant="outline" className="mb-3 text-xs border-[#9FFFE1] text-[#2DCE89] bg-[#F1FCF7]">
                     {getCategoryName(s.categoryId)}
                   </Badge>
                   <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center space-x-1">
-                      <span className="font-bold text-emerald-600">
-                        {" "}
-                        {/* Emerald price */}₹{s.pricing?.[0]?.sellingPrice ?? 0}
-                      </span>
+                    <div className="flex items-center space-x-2">
+                      <span className="font-bold text-lg text-[#2DCE89]">₹{s.pricing?.[0]?.sellingPrice ?? 0}</span>
                       {s.pricing?.[0]?.originalPrice &&
                         s.pricing[0].originalPrice > (s.pricing[0].sellingPrice ?? 0) && (
-                          <span className="line-through text-sm text-slate-500">₹{s.pricing[0].originalPrice}</span>
+                          <span className="line-through text-sm text-[#475569]">₹{s.pricing[0].originalPrice}</span>
                         )}
                     </div>
-                    <div className="flex items-center text-xs text-slate-500 space-x-1">
+                    <div className="flex items-center text-xs text-[#475569] space-x-1">
                       <Clock className="h-3 w-3" />
                       <span>{s.duration ?? 0} mins</span>
                     </div>
@@ -247,16 +220,15 @@ export default function ServicesPage() {
                     <Link href={`/services/details/${s.id}`} className="flex-1">
                       <Button
                         variant="outline"
-                        className="w-full border-emerald-200 text-emerald-700 hover:bg-emerald-50 bg-transparent"
+                        className="w-full h-11 md:h-10 border-[#2DCE89] text-[#2DCE89] hover:bg-[#F1FCF7] bg-transparent font-medium"
                       >
-                        {" "}
-                        {/* Emerald outline button */}
                         View Details
                       </Button>
                     </Link>
-                    <Button onClick={() => handleAddToCart(s)} className="px-3 bg-emerald-600 hover:bg-emerald-700">
-                      {" "}
-                      {/* Emerald primary button */}
+                    <Button
+                      onClick={() => handleAddToCart(s)}
+                      className="px-4 h-11 md:h-10 bg-[#2DCE89] hover:bg-[#25b377] text-white"
+                    >
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
@@ -266,9 +238,7 @@ export default function ServicesPage() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-slate-600 mb-4">
-              {" "}
-              {/* Muted graphite */}
+            <p className="text-[#475569] mb-4">
               {searchQuery || selectedCategory !== "all" ? "No matching services." : "No services available."}
             </p>
             <Button
@@ -276,9 +246,9 @@ export default function ServicesPage() {
                 setSearchQuery("")
                 setSelectedCategory("all")
               }}
-              className="bg-emerald-600 hover:bg-emerald-700" // Emerald button
+              className="bg-[#2DCE89] hover:bg-[#25b377] text-white h-11 px-6"
             >
-              Clear
+              Clear Filters
             </Button>
           </div>
         )}
