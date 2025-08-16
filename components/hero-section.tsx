@@ -64,27 +64,22 @@ export function HeroSection() {
       alert("Geolocation is not supported by your browser.")
       return
     }
-
     setDetectingLocation(true)
-
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         try {
           const { latitude, longitude } = position.coords
-
           // Use Nominatim for reverse geocoding
           const response = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`,
           )
           const data = await response.json()
-
           const location: Location = {
             id: `${latitude}-${longitude}`,
             name: data.display_name || `${latitude}, ${longitude}`,
             address: data.display_name || `${latitude}, ${longitude}`,
             coordinates: { lat: latitude, lng: longitude },
           }
-
           setCurrentLocation(location)
           if (typeof window !== "undefined") {
             localStorage.setItem("selectedLocation", JSON.stringify(location))
@@ -137,16 +132,17 @@ export function HeroSection() {
     <>
       {/* Desktop Hero Section */}
       <section className="hidden md:block relative min-h-screen bg-[#FAFAFB] overflow-hidden">
-        <div className="container mx-auto px-4 py-8 min-h-screen flex items-center">
-          <div className="grid grid-cols-2 gap-12 items-center w-full">
-            {/* Left column - Image Carousel (Full left space) */}
-            <div className="relative">
+        <div className="container mx-auto px-8 py-10 min-h-screen flex items-center">
+          <div className="grid grid-cols-2 gap-14 items-center w-full">
+
+            {/* Left column - Responsive Full Image */}
+            <div className="relative h-[75vh] w-full flex items-center"> 
               {banners.length > 0 && (
-                <div className="relative h-[500px] rounded-3xl overflow-hidden shadow-2xl">
+                <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl">
                   <img
                     src={banners[currentBannerIndex]?.imageUrl || "/placeholder.svg"}
                     alt={banners[currentBannerIndex]?.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover object-center transition-all duration-500"
                   />
 
                   {/* Carousel controls */}
@@ -154,25 +150,25 @@ export function HeroSection() {
                     <>
                       <button
                         onClick={prevBanner}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all"
+                        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all z-10"
                       >
                         <ChevronLeft className="w-6 h-6 text-[#1B1F22]" />
                       </button>
                       <button
                         onClick={nextBanner}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all z-10"
                       >
                         <ChevronRight className="w-6 h-6 text-[#1B1F22]" />
                       </button>
 
-                      {/* Smaller dots indicator */}
-                      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+                      {/* Indicator Dots */}
+                      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
                         {banners.map((_, index) => (
                           <button
                             key={index}
                             onClick={() => setCurrentBannerIndex(index)}
                             className={`w-2 h-2 rounded-full transition-all ${
-                              index === currentBannerIndex ? "bg-white" : "bg-white/50"
+                              index === currentBannerIndex ? "bg-white shadow" : "bg-white/50"
                             }`}
                           />
                         ))}
@@ -183,67 +179,67 @@ export function HeroSection() {
               )}
             </div>
 
-            {/* Right column - Text and buttons moved to right */}
-            <div className="space-y-8">
+            {/* Right column - Modern Content & Buttons */}
+            <div className="space-y-10 pr-6">
               <div>
-                <h1 className="font-bold text-5xl lg:text-6xl text-[#1B1F22] leading-tight mb-6">
+                <h1 className="font-bold text-5xl lg:text-6xl text-[#1B1F22] leading-tight mb-7">
                   Bringing home services,
                   <br />
                   at your <span style={{ color: "#2DCE89" }}>fingertips</span>
                 </h1>
-                <p className="text-lg text-[#475569] leading-relaxed mb-8">
+                <p className="text-lg text-[#475569] leading-relaxed mb-10">
                   Discover a simpler way to manage your home with professional cleaning services and premium products.
                 </p>
               </div>
 
               {/* Location Display */}
               {currentLocation && (
-                <div className="p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
-                  <div className="flex items-center gap-3">
-                    <MapPin className="w-5 h-5 text-[#2DCE89]" />
-                    <div>
-                      <p className="text-sm text-[#475569]">Deliver to</p>
-                      <p className="font-medium text-[#1B1F22] truncate max-w-xs">{currentLocation.name}</p>
-                    </div>
+                <div className="p-4 bg-white rounded-xl border border-gray-100 shadow-sm flex items-center gap-3 max-w-md">
+                  <MapPin className="w-5 h-5 text-[#2DCE89]" />
+                  <div>
+                    <p className="text-sm text-[#475569]">Deliver to</p>
+                    <p className="font-medium text-[#1B1F22] truncate max-w-xs">{currentLocation.name}</p>
                   </div>
                 </div>
               )}
 
-              {/* Modern aesthetic buttons */}
-              <div className="space-y-4">
+              {/* Modern Buttons */}
+              <div className="space-y-5 max-w-md">
                 <Button
                   onClick={() => router.push("/services")}
-                  className="w-full rounded-xl flex items-center py-6 px-6 bg-[#2DCE89] hover:bg-[#25b377] text-white font-semibold text-lg shadow-lg justify-start transition-all duration-300 transform hover:scale-105"
+                  className="w-full py-6 px-7 rounded-2xl flex gap-4 items-center font-semibold text-xl bg-gradient-to-r from-[#2DCE89] via-[#25b377] to-[#2DCE89]
+                        text-white shadow-lg group transition-transform duration-200 hover:scale-105 hover:shadow-xl relative overflow-hidden"
                 >
-                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mr-4">
-                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" />
-                    </svg>
+                  <div className="bg-white/20 rounded-xl flex items-center justify-center p-3 transition-all">
+                    <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z"/></svg>
                   </div>
                   Explore Services
+                  <span className="absolute bottom-0 left-5 w-3/4 h-1 bg-white/30 rounded transition-all scale-x-0 group-hover:scale-x-100 origin-left"></span>
                 </Button>
 
                 <Button
                   onClick={() => router.push("/products")}
-                  className="w-full rounded-xl flex items-center py-6 px-6 bg-[#1B1F22] hover:bg-[#2a2f35] text-white font-semibold text-lg shadow-lg justify-start transition-all duration-300 transform hover:scale-105"
+                  className="w-full py-6 px-7 rounded-2xl flex gap-4 items-center font-semibold text-xl bg-[#1B1F22] hover:bg-[#23282d]
+                        text-white shadow-lg group transition-transform duration-200 hover:scale-105 hover:shadow-xl relative"
                 >
-                  <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mr-4">
-                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M19 7h-3V6a4 4 0 0 0-8 0v1H5a1 1 0 0 0-1 1v11a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V8a1 1 0 0 0-1-1z" />
-                    </svg>
+                  <div className="bg-white/20 rounded-xl flex items-center justify-center p-3 transition-all">
+                    <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M19 7h-3V6a4 4 0 0 0-8 0v1H5a1 1 0 0 0-1 1v11a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V8a1 1 0 0 0-1-1z" /></svg>
                   </div>
                   Explore Products
+                  <span className="absolute bottom-0 left-5 w-3/4 h-1 bg-white/30 rounded transition-all scale-x-0 group-hover:scale-x-100 origin-left"></span>
                 </Button>
 
                 <Button
                   onClick={detectLocation}
                   disabled={detectingLocation}
-                  className="w-full rounded-xl flex items-center py-6 px-6 bg-white border-2 border-[#2DCE89] hover:bg-[#F1FCF7] text-[#1B1F22] font-semibold text-lg shadow-lg justify-start transition-all duration-300 transform hover:scale-105"
+                  className="w-full py-6 px-7 rounded-2xl flex gap-4 items-center font-semibold text-xl bg-white border-2 border-[#2DCE89]
+                        text-[#1B1F22] shadow-lg group transition-transform duration-200 hover:bg-[#F1FCF7] hover:scale-105 hover:shadow-xl relative backdrop-blur-sm"
                 >
-                  <div className="w-12 h-12 bg-[#F1FCF7] rounded-xl flex items-center justify-center mr-4">
-                    <MapPin className={`w-6 h-6 text-[#2DCE89] ${detectingLocation ? "animate-pulse" : ""}`} />
+                  <div className={`rounded-xl flex items-center justify-center p-3 ${detectingLocation ? "animate-pulse" : ""}`}>
+                    <MapPin className="w-7 h-7 text-[#2DCE89]" />
                   </div>
                   {detectingLocation ? "Detecting..." : "Detect Location"}
+                  <span className="absolute bottom-0 left-5 w-3/4 h-1 bg-[#2DCE89]/30 rounded transition-all scale-x-0 group-hover:scale-x-100 origin-left"></span>
                 </Button>
               </div>
             </div>
@@ -264,7 +260,7 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Half-width carousel */}
+          {/* Carousel */}
           {banners.length > 0 && (
             <div className="relative h-48 w-1/2 rounded-2xl overflow-hidden shadow-xl mb-8">
               <img
@@ -272,7 +268,6 @@ export function HeroSection() {
                 alt={banners[currentBannerIndex]?.title}
                 className="w-full h-full object-cover"
               />
-
               {banners.length > 1 && (
                 <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1">
                   {banners.map((_, index) => (
@@ -356,8 +351,8 @@ export function HeroSection() {
                 className="w-full bg-white text-[#1B1F22] hover:bg-gray-50 rounded-2xl py-5 px-6 flex items-center justify-between text-lg font-semibold shadow-lg border border-gray-200"
               >
                 <div className="flex items-center">
-                  <div className="w-10 h-10 bg-[#F1FCF7] rounded-xl flex items-center justify-center mr-4">
-                    <MapPin className={`w-6 h-6 text-[#2DCE89] ${detectingLocation ? "animate-pulse" : ""}`} />
+                  <div className={`w-10 h-10 bg-[#F1FCF7] rounded-xl flex items-center justify-center mr-4 ${detectingLocation ? "animate-pulse" : ""}`}>
+                    <MapPin className="w-6 h-6 text-[#2DCE89]" />
                   </div>
                   {detectingLocation ? "Detecting Location..." : "Detect Location"}
                 </div>
