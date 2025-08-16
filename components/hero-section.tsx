@@ -257,7 +257,8 @@ export function HeroSection() {
 
           {/* Carousel */}
           {banners.length > 0 && (
-            <div className="relative h-48 w-1/2 rounded-2xl overflow-hidden shadow-md mb-8">
+            // ✅ CORRECTED: Changed w-1/2 to w-full for better image display on mobile
+            <div className="relative h-48 w-full rounded-2xl overflow-hidden shadow-md mb-8">
               <img
                 src={banners[currentBannerIndex]?.imageUrl || "/placeholder.svg"}
                 alt={banners[currentBannerIndex]?.title}
