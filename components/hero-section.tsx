@@ -2,13 +2,24 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Star, Users, MapPin } from "lucide-react"
+import { Star, Users, MapPin, ChevronLeft, ChevronRight } from "lucide-react"
 import { LocationSelector } from "./location-selector"
+import { firebaseService } from "@/lib/firebase-service"
 import type { Location } from "@/lib/types"
+
+interface Banner {
+  id: string
+  title: string
+  imageUrl: string
+  isActive: boolean
+  order: number
+}
 
 export function HeroSection() {
   const [currentLocation, setCurrentLocation] = useState<Location | null>(null)
   const [mounted, setMounted] = useState(false)
+  const [banners, setBanners] = useState<Banner[]>([])
+  const [currentBannerIndex, setCurrentBannerIndex] = useState(0)
 
   useEffect(() => {
     setMounted(true)
@@ -22,7 +33,29 @@ export function HeroSection() {
         }
       }
     }
+    fetchBanners()
   }, [])
+
+  const fetchBanners = async () => {
+    try {
+      const bannersData = await firebaseService.getBanners()
+      const activeBanners = bannersData
+        .filter((banner: Banner) => banner.isActive)
+        .sort((a: Banner, b: Banner) => a.order - b.order)
+      setBanners(activeBanners)
+    } catch (error) {
+      console.error("Error fetching banners:", error)
+      setBanners([
+        {
+          id: "1",
+          title: "Professional Cleaning Services",
+          imageUrl: "/professional-cleaning-service.png",
+          isActive: true,
+          order: 1,
+        },
+      ])
+    }
+  }
 
   const handleLocationSelect = (location: Location) => {
     setCurrentLocation(location)
@@ -31,21 +64,26 @@ export function HeroSection() {
     }
   }
 
+  const nextBanner = () => {
+    setCurrentBannerIndex((prev) => (prev + 1) % banners.length)
+  }
+
+  const prevBanner = () => {
+    setCurrentBannerIndex((prev) => (prev - 1 + banners.length) % banners.length)
+  }
+
+  useEffect(() => {
+    if (banners.length > 1) {
+      const interval = setInterval(nextBanner, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [banners.length])
+
   return (
     <>
       {/* Desktop Hero Section */}
       <section className="hidden md:block relative min-h-screen bg-[#FAFAFB] overflow-hidden">
-        {/* iPhone frame background - full width */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Close%20up.jpg-qz4pC6uz42gdNYavfeXHxu0PplPf62.jpeg"
-            alt="iPhone Frame"
-            className="w-full h-full object-cover object-center"
-          />
-        </div>
-
-        {/* Content overlay */}
-        <div className="relative z-10 container mx-auto px-4 py-8 min-h-screen flex flex-col">
+        <div className="container mx-auto px-4 py-8 min-h-screen flex flex-col">
           <div className="text-center pt-16 pb-8">
             <h1 className="font-bold text-5xl lg:text-6xl text-[#1B1F22] leading-tight mb-4">
               Bringing home services,
@@ -54,14 +92,52 @@ export function HeroSection() {
             </h1>
           </div>
 
-          <div className="flex-1 grid grid-cols-12 gap-8 items-center">
-            {/* Left column - Description and stats */}
-            <div className="col-span-3 space-y-6">
-              <p className="text-lg text-[#475569] leading-relaxed">
-                Discover a simpler way to manage your home with professional cleaning services and premium products.
-              </p>
+          <div className="flex-1 grid grid-cols-2 gap-8 items-center">
+            {/* Left column - Image Carousel (50% width) */}
+            <div className="relative">
+              {banners.length > 0 && (
+                <div className="relative h-96 rounded-2xl overflow-hidden shadow-2xl">
+                  <img
+                    src={banners[currentBannerIndex]?.imageUrl || "/placeholder.svg"}
+                    alt={banners[currentBannerIndex]?.title}
+                    className="w-full h-full object-cover"
+                  />
 
-              <div className="space-y-4">
+                  {/* Carousel controls */}
+                  {banners.length > 1 && (
+                    <>
+                      <button
+                        onClick={prevBanner}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all"
+                      >
+                        <ChevronLeft className="w-5 h-5 text-[#1B1F22]" />
+                      </button>
+                      <button
+                        onClick={nextBanner}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all"
+                      >
+                        <ChevronRight className="w-5 h-5 text-[#1B1F22]" />
+                      </button>
+
+                      {/* Dots indicator */}
+                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                        {banners.map((_, index) => (
+                          <button
+                            key={index}
+                            onClick={() => setCurrentBannerIndex(index)}
+                            className={`w-2 h-2 rounded-full transition-all ${
+                              index === currentBannerIndex ? "bg-white" : "bg-white/50"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* Stats below carousel */}
+              <div className="mt-8 space-y-4">
                 <div className="flex items-center gap-3">
                   <Star className="h-6 w-6 fill-amber-400 text-amber-400" />
                   <span className="font-bold text-2xl text-[#1B1F22]">4.8</span>
@@ -75,13 +151,16 @@ export function HeroSection() {
               </div>
             </div>
 
-            {/* Center column - Phone with location selector */}
-            <div className="col-span-6 flex flex-col items-center justify-center min-h-[600px] relative">
-              <div className="absolute inset-0 flex flex-col items-center justify-center px-8 pt-16">
-                <h3 className="text-4xl font-semibold mb-2 text-center text-[#1B1F22]">Maintain your</h3>
-                <h3 className="text-4xl font-semibold mb-8 text-center text-[#2DCE89]">home</h3>
+            {/* Right column - Clean aesthetic buttons and location */}
+            <div className="space-y-8 pl-8">
+              <div className="space-y-6">
+                <p className="text-lg text-[#475569] leading-relaxed">
+                  Discover a simpler way to manage your home with professional cleaning services and premium products.
+                </p>
 
-                <div className="w-full max-w-sm space-y-4">
+                {/* Location Selector */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[#1B1F22]">Select your location</label>
                   {mounted && (
                     <LocationSelector
                       onLocationSelect={handleLocationSelect}
@@ -89,77 +168,80 @@ export function HeroSection() {
                       className="w-full"
                     />
                   )}
-
-                  <div className="flex gap-2">
-                    <Button className="flex-1 bg-[#2DCE89] hover:bg-[#25b377] text-white rounded-full py-3">
-                      Explore Services
-                    </Button>
-                    <Button className="flex-1 bg-[#2DCE89] hover:bg-[#25b377] text-white rounded-full py-3">
-                      Explore Products
-                    </Button>
-                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Right column - Service badges - made shorter and black */}
-            <div className="col-span-3 space-y-3">
-              <Button className="w-full rounded-lg flex items-center py-3 px-4 bg-[#1B1F22] hover:bg-[#2a2f35] text-white font-medium text-sm shadow-sm justify-start">
-                <span className="bg-white rounded-md p-1.5 mr-3">
-                  <svg className="w-4 h-4" style={{ color: "#2DCE89" }} fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" />
-                  </svg>
-                </span>
-                Home Services
-              </Button>
-              <Button className="w-full rounded-lg flex items-center py-3 px-4 bg-[#1B1F22] hover:bg-[#2a2f35] text-white font-medium text-sm shadow-sm justify-start">
-                <span className="bg-white rounded-md p-1.5 mr-3">
-                  <svg className="w-4 h-4" style={{ color: "#2DCE89" }} fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M19 7h-3V6a4 4 0 0 0-8 0v1H5a1 1 0 0 0-1 1v11a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V8a1 1 0 0 0-1-1z" />
-                  </svg>
-                </span>
-                Premium Products
-              </Button>
-              <Button className="w-full rounded-lg flex items-center py-3 px-4 bg-[#1B1F22] hover:bg-[#2a2f35] text-white font-medium text-sm shadow-sm justify-start">
-                <span className="bg-white rounded-md p-1.5 mr-3">
-                  <svg className="w-4 h-4" style={{ color: "#2DCE89" }} fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                  </svg>
-                </span>
-                Quality Assured
-              </Button>
-              <Button className="w-full rounded-lg flex items-center py-3 px-4 bg-[#1B1F22] hover:bg-[#2a2f35] text-white font-medium text-sm shadow-sm justify-start">
-                <span className="bg-white rounded-md p-1.5 mr-3">
-                  <svg className="w-4 h-4" style={{ color: "#2DCE89" }} fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                </span>
-                Top Rated
-              </Button>
+              {/* Clean aesthetic buttons */}
+              <div className="space-y-4">
+                <Button className="w-full rounded-xl flex items-center py-6 px-6 bg-gradient-to-r from-[#2DCE89] to-[#25b377] hover:from-[#25b377] hover:to-[#2DCE89] text-white font-semibold text-lg shadow-lg justify-start transition-all duration-300 transform hover:scale-105">
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mr-4">
+                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" />
+                    </svg>
+                  </div>
+                  Explore Services
+                </Button>
+
+                <Button className="w-full rounded-xl flex items-center py-6 px-6 bg-gradient-to-r from-[#1B1F22] to-[#2a2f35] hover:from-[#2a2f35] hover:to-[#1B1F22] text-white font-semibold text-lg shadow-lg justify-start transition-all duration-300 transform hover:scale-105">
+                  <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mr-4">
+                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M19 7h-3V6a4 4 0 0 0-8 0v1H5a1 1 0 0 0-1 1v11a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V8a1 1 0 0 0-1-1z" />
+                    </svg>
+                  </div>
+                  Explore Products
+                </Button>
+
+                <Button className="w-full rounded-xl flex items-center py-6 px-6 bg-white border-2 border-[#2DCE89] hover:bg-[#F1FCF7] text-[#1B1F22] font-semibold text-lg shadow-lg justify-start transition-all duration-300 transform hover:scale-105">
+                  <div className="w-12 h-12 bg-[#F1FCF7] rounded-xl flex items-center justify-center mr-4">
+                    <MapPin className="w-6 h-6" style={{ color: "#2DCE89" }} />
+                  </div>
+                  Detect Location
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Mobile Hero Section - Replicated from reference image */}
+      {/* Mobile Hero Section */}
       <section className="md:hidden min-h-screen bg-gradient-to-br from-[#2DCE89] to-[#25b377] relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-20 right-8 w-32 h-32 bg-white/5 rounded-full blur-xl"></div>
-          <div className="absolute bottom-40 left-6 w-24 h-24 bg-white/5 rounded-full blur-lg"></div>
-          <div className="absolute top-1/2 right-4 w-16 h-16 bg-white/5 rounded-full blur-md"></div>
-        </div>
-
+        {/* ... existing mobile code ... */}
         <div className="relative z-10 px-6 py-12 min-h-screen flex flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between mb-12">
+          <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg">
-                <span className="text-[#2DCE89] font-bold text-lg">CG</span>
+                <img src="/cleangod-logo.png" alt="CleanGod" className="w-8 h-8 rounded-full" />
               </div>
               <span className="text-white font-bold text-xl">CleanGod</span>
             </div>
             <div className="w-12 h-12 bg-white/20 rounded-full backdrop-blur-sm border border-white/30"></div>
           </div>
+
+          {/* Full-width carousel */}
+          {banners.length > 0 && (
+            <div className="relative h-48 rounded-2xl overflow-hidden shadow-xl mb-8">
+              <img
+                src={banners[currentBannerIndex]?.imageUrl || "/placeholder.svg"}
+                alt={banners[currentBannerIndex]?.title}
+                className="w-full h-full object-cover"
+              />
+
+              {banners.length > 1 && (
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+                  {banners.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentBannerIndex(index)}
+                      className={`w-2 h-2 rounded-full transition-all ${
+                        index === currentBannerIndex ? "bg-white" : "bg-white/50"
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Main content */}
           <div className="flex-1 flex flex-col justify-center space-y-8">

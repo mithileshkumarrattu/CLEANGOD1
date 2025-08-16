@@ -48,6 +48,8 @@ class FirebaseService {
       "reviews",
       "notifications",
       "coupons",
+      "banners", // Added banners collection to initialization
+      "serviceboys", // Added serviceboys collection to initialization
     ]
 
     for (const collectionName of collections) {
@@ -483,6 +485,57 @@ export class CleanGodService extends FirebaseService {
 
   async deleteCoupon(id: string): Promise<void> {
     return this.delete("coupons", id)
+  }
+
+  // Banners
+  async getBanners(): Promise<any[]> {
+    return this.getAll<any>("banners", "order")
+  }
+
+  async getActiveBanners(): Promise<any[]> {
+    return this.getWhere<any>("banners", "isActive", "==", true, "order")
+  }
+
+  async createBanner(banner: any): Promise<string> {
+    return this.create<any>("banners", banner)
+  }
+
+  async updateBanner(id: string, data: any): Promise<void> {
+    return this.update<any>("banners", id, data)
+  }
+
+  async deleteBanner(id: string): Promise<void> {
+    return this.delete("banners", id)
+  }
+
+  // Service Boys
+  async getServiceBoys(): Promise<any[]> {
+    return this.getAll<any>("serviceboys", "name")
+  }
+
+  async getActiveServiceBoys(): Promise<any[]> {
+    return this.getWhere<any>("serviceboys", "isActive", "==", true, "name")
+  }
+
+  async createServiceBoy(serviceBoy: any): Promise<string> {
+    return this.create<any>("serviceboys", serviceBoy)
+  }
+
+  async updateServiceBoy(id: string, data: any): Promise<void> {
+    return this.update<any>("serviceboys", id, data)
+  }
+
+  async deleteServiceBoy(id: string): Promise<void> {
+    return this.delete("serviceboys", id)
+  }
+
+  async assignTaskToServiceBoy(serviceBoyId: string, taskData: any): Promise<void> {
+    const serviceBoy = await this.getById<any>("serviceboys", serviceBoyId)
+    if (serviceBoy) {
+      const tasks = serviceBoy.tasks || []
+      const newTask = { ...taskData, id: `task_${Date.now()}`, assignedAt: new Date().toISOString() }
+      await this.updateServiceBoy(serviceBoyId, { tasks: [...tasks, newTask] })
+    }
   }
 }
 
