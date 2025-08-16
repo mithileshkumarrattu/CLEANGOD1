@@ -70,6 +70,34 @@ export default function PaymentPage() {
         const bookingId = await firebaseService.createBooking(booking)
         sessionStorage.removeItem("bookingData")
         router.push(`/booking/confirmation?id=${bookingId}`)
+      } else if (paymentMethod === "upi") {
+        // Handle UPI payment with deep links
+        const upiLink = `upi://pay?pa=cleangod@upi&pn=CleanGod&am=${bookingData.totalAmount}&tn=Payment%20for%20${encodeURIComponent(bookingData.serviceName)}&cu=INR`
+
+        // Try to open UPI app
+        window.location.href = upiLink
+
+        // Create booking with UPI payment pending
+        const booking = {
+          ...bookingData,
+          paymentMethod: "upi",
+          paymentStatus: "pending",
+          status: "pending",
+          createdAt: new Date(),
+          userId: user.uid,
+          userName: user.displayName || user.email,
+          customerName: user.displayName || user.email,
+          customerEmail: user.email,
+          customerPhone: user.phoneNumber || "",
+        }
+
+        const bookingId = await firebaseService.createBooking(booking)
+        sessionStorage.removeItem("bookingData")
+
+        // Show confirmation after a delay
+        setTimeout(() => {
+          router.push(`/booking/confirmation?id=${bookingId}`)
+        }, 3000)
       } else {
         // Handle Razorpay payment
         const options = {
@@ -126,7 +154,7 @@ export default function PaymentPage() {
       console.error("Payment error:", error)
       alert("Payment failed. Please try again.")
     } finally {
-      if (paymentMethod === "cash_on_delivery") {
+      if (paymentMethod === "cash_on_delivery" || paymentMethod === "upi") {
         setLoading(false)
       }
     }
@@ -202,12 +230,25 @@ export default function PaymentPage() {
                 </div>
 
                 <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-[#F1FCF7] transition-colors">
+                  <RadioGroupItem value="upi" id="upi" />
+                  <Label htmlFor="upi" className="flex items-center gap-3 cursor-pointer flex-1">
+                    <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                    </svg>
+                    <div>
+                      <div className="font-medium text-[#1B1F22]">UPI Payment</div>
+                      <div className="text-sm text-[#475569]">PhonePe, Google Pay, Paytm</div>
+                    </div>
+                  </Label>
+                </div>
+
+                <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-[#F1FCF7] transition-colors">
                   <RadioGroupItem value="online" id="online" />
                   <Label htmlFor="online" className="flex items-center gap-3 cursor-pointer flex-1">
                     <CreditCard className="w-5 h-5 text-blue-600" />
                     <div>
-                      <div className="font-medium text-[#1B1F22]">Pay Online</div>
-                      <div className="text-sm text-[#475569]">UPI, Cards, Net Banking</div>
+                      <div className="font-medium text-[#1B1F22]">Cards & Net Banking</div>
+                      <div className="text-sm text-[#475569]">Credit/Debit Cards, Net Banking</div>
                     </div>
                   </Label>
                 </div>

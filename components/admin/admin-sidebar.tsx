@@ -11,24 +11,24 @@ import {
   ShoppingBag,
   Calendar,
   Users,
-  BarChart3,
-  Settings,
   LogOut,
   Menu,
   X,
   Sparkles,
+  FolderTree,
+  ImageIcon,
 } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 
 const navigation = [
   { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { name: "Services", href: "/admin/services", icon: Sparkles },
+  { name: "Service Categories", href: "/admin/service-categories", icon: FolderTree },
   { name: "Products", href: "/admin/products", icon: Package },
+  { name: "Banners", href: "/admin/banners", icon: ImageIcon },
   { name: "Bookings", href: "/admin/bookings", icon: Calendar },
   { name: "Orders", href: "/admin/orders", icon: ShoppingBag },
   { name: "Users", href: "/admin/users", icon: Users },
-  { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
-  { name: "Settings", href: "/admin/settings", icon: Settings },
 ]
 
 export function AdminSidebar() {
