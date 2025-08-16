@@ -96,43 +96,33 @@ export default function AddressSelectionPage() {
 
     try {
       const selectedAddr = addresses.find((addr) => addr.id === selectedAddress)
-      const serviceId = searchParams.get("serviceId")
-      const productId = searchParams.get("productId")
 
-      if (serviceId || productId) {
-        const bookingData = {
-          userId: user.id,
-          userEmail: user.email || "",
-          userName: user.name || "User",
-          serviceId: serviceId || null,
-          productId: productId || null,
-          address: selectedAddr,
-          status: "confirmed",
-          paymentMethod: "cash_on_delivery",
-          paymentStatus: "pending",
-          totalAmount: Number.parseFloat(searchParams.get("amount") || "0"),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          scheduledDate: searchParams.get("date") || new Date().toISOString().split("T")[0],
-          scheduledTime: searchParams.get("time") || "10:00 AM",
-          notes: searchParams.get("notes") || "",
-        }
-
-        const bookingId = await firebaseService.create("bookings", bookingData)
-
-        // Redirect to booking confirmation with actual booking ID
-        router.push(`/booking/confirmation?bookingId=${bookingId}`)
-      } else {
-        // Continue to summary if no service/product selected
-        const currentParams = Object.fromEntries(searchParams.entries())
-        const params = new URLSearchParams({
-          ...currentParams,
-          addressId: selectedAddress,
-        })
-        router.push(`/booking/summary?${params.toString()}`)
+      const bookingData = {
+        userId: user.id,
+        userEmail: user.email || "",
+        userName: user.displayName || user.email || "User",
+        customerName: user.displayName || user.email || "User",
+        customerEmail: user.email || "",
+        customerPhone: user.phoneNumber || "",
+        serviceId: searchParams.get("serviceId"),
+        productId: searchParams.get("productId"),
+        serviceName: searchParams.get("serviceName") || "Service",
+        address: selectedAddr,
+        totalAmount: Number.parseFloat(searchParams.get("amount") || "0"),
+        scheduledDate: searchParams.get("date") || new Date().toISOString().split("T")[0],
+        scheduledTime: searchParams.get("time") || "10:00 AM",
+        notes: searchParams.get("notes") || "",
+        duration: Number.parseInt(searchParams.get("duration") || "60"),
       }
+
+      // Store booking data in session storage for payment page
+      sessionStorage.setItem("bookingData", JSON.stringify(bookingData))
+
+      // Navigate to payment page
+      router.push("/booking/payment")
     } catch (error) {
-      console.error("Error creating booking:", error)
+      console.error("Error preparing booking:", error)
+      alert("Error preparing booking. Please try again.")
     }
   }
 
@@ -385,7 +375,7 @@ export default function AddressSelectionPage() {
           className="w-full h-12 text-base font-medium text-white"
           style={{ backgroundColor: "#2DCE89" }}
         >
-          Complete Booking
+          Continue to Payment
         </Button>
       </main>
     </div>

@@ -78,8 +78,8 @@ export function HeroSection() {
             {/* Center column - Phone with location selector */}
             <div className="col-span-6 flex flex-col items-center justify-center min-h-[600px] relative">
               <div className="absolute inset-0 flex flex-col items-center justify-center px-8 pt-16">
-                <h3 className="text-3xl font-semibold mb-2 text-center text-[#1B1F22]">Maintain your</h3>
-                <h3 className="text-3xl font-semibold mb-8 text-center text-[#2DCE89]">home</h3>
+                <h3 className="text-4xl font-semibold mb-2 text-center text-[#1B1F22]">Maintain your</h3>
+                <h3 className="text-4xl font-semibold mb-8 text-center text-[#2DCE89]">home</h3>
 
                 <div className="w-full max-w-sm space-y-4">
                   {mounted && (
